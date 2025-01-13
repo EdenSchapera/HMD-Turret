@@ -44,7 +44,7 @@ int az_pin = 10;
 int ang_az = 0; // azimuth angle
 int ang_alt = 0; // altitude angle
 
-int alt_buffer = 90;
+int alt_buffer = 0;
 int az_buffer = 90;
 
 int alt_running = 90;
@@ -274,7 +274,20 @@ int az_correct()
 	return (int)round(az_prime_deg);
 }
 
+// Function to generate a progress bar string
+String generateProgressBar(int progress) {
+    const int barWidth = 14; // Width of the progress bar ignoring endcaps
+    String progressBar = "[";
 
+    int pos = barWidth * progress / 100;
+    for (int i = 0; i < barWidth; ++i) {
+        if (i < pos) progressBar += "=";
+        else if (i == pos) progressBar += ">";
+        else progressBar += " ";
+    }
+    progressBar += "]";
+    return progressBar;
+}
 
 void setup() 
 {
@@ -317,7 +330,7 @@ void setup()
 		  delay(10);
 		}
 	}
-	two_lines("MPU6050_0 FOUND!","XX--------------",load_delay_0);
+	two_lines("MPU6050_0 FOUND!",generateProgressBar(15),load_delay_0);
 	
 	// Try to initialize gyro
 	if (!mpu_1.begin(0x69, &Wire, 0)) {
@@ -332,58 +345,58 @@ void setup()
 		  delay(10);
 		}
 	}
-	two_lines("MPU6050_1 FOUND!","XXXX------------",load_delay_0);
+	two_lines("MPU6050_1 FOUND!",generateProgressBar(30),load_delay_0);
 	lcd.clear();
 
 	// set accelerometer range to +-8G
 	mpu_0.setAccelerometerRange(MPU6050_RANGE_8_G);
 	// initialization of accelerometer success, print message
-	two_lines("INIT: Accelermtr","XXXXXX----------",load_delay_0);
+	two_lines("INIT: Accelermtr",generateProgressBar(40),load_delay_0);
 
 	
 	// set gyro range to +- 500 deg/s
 	mpu_0.setGyroRange(MPU6050_RANGE_500_DEG);
 		// initialization of gyro success, print message
-	two_lines("INIT: Gyros","XXXXXXXX--------",load_delay_0);
+	two_lines("INIT: Gyros",generateProgressBar(50),load_delay_0);
 	
 	// set filter bandwidth to 21 Hz
 	mpu_0.setFilterBandwidth(MPU6050_BAND_21_HZ);
-	two_lines("INIT: Filters","XXXXXXXXXX------",load_delay_0);
+	two_lines("INIT: Filters",generateProgressBar(60),load_delay_0);
 	
 	// initialization of gyro success, print message
-	two_lines("INIT: MPU_0","XXXXXXXXXXXX----",load_delay_1);
-	two_lines("INIT: MPU_1","XXXXXXXXXXXXXX--",load_delay_1);
+	two_lines("INIT: MPU_0",generateProgressBar(75),load_delay_1);
+	two_lines("INIT: MPU_1",generateProgressBar(85),load_delay_1);
 
 	//Initialize pins for ultrasonic
 	pinMode(trigPin, OUTPUT);
 	pinMode(echoPin, INPUT);
 
-	two_lines("INIT: SR04","XXXXXXXXXXXXXXXX",load_delay_1);
+	two_lines("INIT: SR04",generateProgressBar(100),load_delay_1);
 	
 	two_lines("SENSORS","INITIALIZED!",load_delay_1);
 
 
-	two_lines("INIT: SERVO-ALT","----------------");
+	two_lines("INIT: SERVO-ALT",generateProgressBar(20));
 	altitude.attach(alt_pin);
-	two_lines("INIT: SERVO-ALT","XXXX------------",1000);
+	two_lines("INIT: SERVO-ALT",generateProgressBar(40),1000);
 	altitude.write(0);
   lcd.clear();
-	two_lines("INIT: SERVO-ALT","XXXXXXXX--------",1000);
+	two_lines("INIT: SERVO-ALT",generateProgressBar(60),1000);
 	altitude.write(180);
-	two_lines("INIT: SERVO-ALT","XXXXXXXXXXXX----",1000);
+	two_lines("INIT: SERVO-ALT",generateProgressBar(80),1000);
 	altitude.write(90);
-	two_lines("INIT: SERVO-ALT","XXXXXXXXXXXXXXXX",1000);
+	two_lines("INIT: SERVO-ALT",generateProgressBar(100),1000);
 
 
-	two_lines("INIT: SERVO-AZ","----------------");
+	two_lines("INIT: SERVO-AZ",generateProgressBar(20));
 	azimuth.attach(az_pin);
-	two_lines("INIT: SERVO-AZ","XXXX------------",1000);
+	two_lines("INIT: SERVO-AZ",generateProgressBar(40),1000);
 	azimuth.write(0);
-	two_lines("INIT: SERVO-AZ","XXXXXXXX--------",1000);
+	two_lines("INIT: SERVO-AZ",generateProgressBar(60),1000);
 	azimuth.write(180);
-	two_lines("INIT: SERVO-AZ","XXXXXXXXXXXX----",1000);
+	two_lines("INIT: SERVO-AZ",generateProgressBar(80),1000);
 	azimuth.write(90);
-	two_lines("INIT: SERVO-AZ","XXXXXXXXXXXXXXXX",1000);
+	two_lines("INIT: SERVO-AZ",generateProgressBar(100),1000);
 
 	two_lines("SERVO-ALT,-AZ","INITIALIZED",load_delay_1);
 
@@ -473,7 +486,7 @@ void loop()
 	az_running = round((az_new+az_buffer)/2);
 
 	azimuth.write(az_running);
-	altitude.write(90 + alt_running);
+	altitude.write(90+alt_running);
 
 	//delay by a minimum amount
 
